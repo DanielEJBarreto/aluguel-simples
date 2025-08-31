@@ -56,7 +56,28 @@ public class BookingIntegrationTests {
                 .thenReturn(new VehicleAPIClient.Vehicle("AVAILABLE"));
 
         BookingRequest bookingRequest = new BookingRequest(1L,
-                LocalDate.now().minusDays(1), LocalDate.now().plusDays(7));
+                LocalDate.now().minusDays(1),
+                LocalDate.now().plusDays(7));
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(bookingRequest)
+                .post("/bookings")
+                .then()
+                .statusCode(400);
+    }
+
+    //Criar uma reserva com a data de inicio no passado e FALHAR
+    @Test
+    @TestSecurity(user = "myuser", roles = "user")
+    void NOTCreateBookingWithStartDateInThePast() {
+        Mockito.when(vehicleAPIClient.findVehicleById(1L))
+                .thenReturn(new VehicleAPIClient.Vehicle("AVAILABLE"));
+
+        BookingRequest bookingRequest = new BookingRequest(1L,
+                LocalDate.now().plusDays(7),
+                LocalDate.now().plusDays(4));
+
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .body(bookingRequest)
@@ -142,18 +163,34 @@ public class BookingIntegrationTests {
                 .statusCode(409);
     }
 
-    //Finalizar reserva
-//    @Transactional
-//    @Test
-//    void FinishBooking() {
-//        RestAssured.given()
-//                .contentType(ContentType.JSON)
-//                .pathParam("id", 3L)
-//                .body("""
-//                        {"status": "FINISHED"}
-//                        """)
-//                .patch("/bookings/{id}/alter")
-//                .then()
-//                .statusCode(200);
-//    }
+//Tentar listar todos os bookings para admin
+    @Test
+    @TestSecurity(user = "myuser", roles = "admin")
+        void shouldListAllBookingsFromDatabaseForAdmin() {
+            RestAssured.given()
+                    .get("/bookings/listall")
+                    .then()
+                    .statusCode(200);
+        }
+
+    //Tentar listar todos os bookings para user e falhar
+    @Test
+    @TestSecurity(user = "myuser", roles = "user")
+    void shouldNOTListAllBookingsFromDatabaseForUser() {
+        RestAssured.given()
+                .get("/bookings/listall")
+                .then()
+                .statusCode(403);
+    }
+
+    //Tentar listar 1 booking por id e conseguir
+    @Test
+    @TestSecurity(user = "myuser", roles = "user")
+    void shouldFindBookingById() {
+        RestAssured.given()
+                .get("/bookings/mybookings")
+                .then()
+                .statusCode(200);
+    }
+
 }

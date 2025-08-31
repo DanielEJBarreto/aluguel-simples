@@ -1,14 +1,13 @@
 package daniel.caixa.Service;
 
-import daniel.caixa.DTO.VehicleRequest;
-import daniel.caixa.DTO.VehicleResponse;
-import daniel.caixa.Entity.Vehicle;
-import daniel.caixa.Entity.VehicleStatus;
-import daniel.caixa.Exception.VehicleCanOnlyBeRentedIfAvailableException;
-import daniel.caixa.Exception.VehicleNotFoundException;
-import daniel.caixa.Exception.VehicleRentedOrUnderMaintenanceException;
-import daniel.caixa.Mapper.VehicleMapper;
-import daniel.caixa.Repository.VehicleRepository;
+import daniel.caixa.dto.VehicleRequest;
+import daniel.caixa.dto.VehicleResponse;
+import daniel.caixa.entity.Vehicle;
+import daniel.caixa.entity.VehicleStatus;
+import daniel.caixa.exception.VehicleNotFoundException;
+import daniel.caixa.exception.VehicleRentedOrUnderMaintenanceException;
+import daniel.caixa.mapper.VehicleMapper;
+import daniel.caixa.repository.VehicleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -61,12 +60,6 @@ public class VehicleService {
     public VehicleResponse updateStatus(Long id, VehicleStatus newStatus) {
         Vehicle vehicle = repository.findByIdOptional(id)
                 .orElseThrow(() -> new VehicleNotFoundException("Veículo não encontrado"));
-
-//        RENTED passou para booking-ms
-//        // Regra de negócio: só pode alugar se estiver disponível
-//        if (newStatus == VehicleStatus.RENTED && vehicle.getStatus() != VehicleStatus.AVAILABLE) {
-//            throw new VehicleCanOnlyBeRentedIfAvailableException("Veículo só pode ser alugado se estiver disponível");
-//        }
 
         vehicle.setStatus(newStatus);
         return mapper.toResponse(vehicle);

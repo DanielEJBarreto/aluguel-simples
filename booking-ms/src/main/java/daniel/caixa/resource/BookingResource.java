@@ -22,7 +22,6 @@ import static org.keycloak.util.JsonSerialization.mapper;
 @ApplicationScoped
 @Path("/bookings")
 @Consumes(MediaType.APPLICATION_JSON)
-@RolesAllowed("admin")
 public class BookingResource {
 
     BookingService bookingService;
@@ -40,35 +39,17 @@ public class BookingResource {
     BookingMapper mapper;
 
     @GET
+    @RolesAllowed("admin")
     @Path("/listall")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<BookingResponse> listAll() {
         return bookingService.listAll();
     }
 
     @GET
-    @Path("/{id}")
-    public BookingResponse findById(@PathParam("id") Long id) {
-        return bookingService.findById(id);
-    }
-
-//    @GET
-//    @RolesAllowed("user")
-//    @Path("/vehicle/{vehicleId}")
-//    public Response getBookingByVehicleId(@PathParam("vehicleId") Long vehicleId) {
-//        BookingResponse booking = bookingService.getActiveBookingByVehicleId(vehicleId);
-//
-//        if (booking == null) {
-//            return Response.status(Response.Status.NOT_FOUND)
-//                    .entity("No active booking found for vehicle " + vehicleId)
-//                    .build();
-//        }
-//
-//        return Response.ok(booking).build();
-//    }
-
-    @GET
-    @RolesAllowed("user")
+    @RolesAllowed({"admin", "user"})
     @Path("/mybookings")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response listMyBookings() {
         String customerId = jwt.getSubject();
         List<Booking> bookings = bookingService.listAllForCustomer(customerId);
@@ -79,19 +60,22 @@ public class BookingResource {
     }
 
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed({"admin", "user"})
+    @Produces(MediaType.TEXT_PLAIN)
     public Response create(@Valid BookingRequest dto) {
         String customerId = jwt.getSubject();
         BookingResponse created = bookingService.create(dto, customerId);
-        return Response.status(Response.Status.CREATED).entity(bookingResponse).build();
+//        return Response.status(Response.Status.CREATED).entity(bookingResponse).build();
+        return Response.status(Response.Status.CREATED).entity("Reserva criada com sucesso!").build();
     }
 
     @PATCH
-    @RolesAllowed("user")
+    @RolesAllowed({"admin", "user"})
     @Path("/{id}/alter")
+    @Produces(MediaType.TEXT_PLAIN)
     public Response alter(@PathParam("id") Long id, AlterBookingStatusRequest dto) {
         bookingService.alter(id, dto.getStatus());
-        return Response.ok().build();
+        return Response.ok().entity("Reserva alterada com sucesso!").build();
     }
 
 }

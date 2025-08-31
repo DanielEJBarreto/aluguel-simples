@@ -1,4 +1,4 @@
-package daniel.caixa.Entity;
+package daniel.caixa.entity;
 
 public enum VehicleStatus {
     AVAILABLE,

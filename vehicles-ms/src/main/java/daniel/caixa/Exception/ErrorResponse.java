@@ -1,4 +1,4 @@
-package daniel.caixa.Exception;
+package daniel.caixa.exception;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

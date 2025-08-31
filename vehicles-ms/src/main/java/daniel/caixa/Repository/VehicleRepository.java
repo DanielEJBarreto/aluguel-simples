@@ -1,6 +1,6 @@
-package daniel.caixa.Repository;
+package daniel.caixa.repository;
 
-import daniel.caixa.Entity.Vehicle;
+import daniel.caixa.entity.Vehicle;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 

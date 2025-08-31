@@ -1,6 +1,6 @@
-package daniel.caixa.DTO;
+package daniel.caixa.dto;
 
-import daniel.caixa.Entity.VehicleStatus;
+import daniel.caixa.entity.VehicleStatus;
 
 public class VehicleResponse {
 
@@ -20,12 +20,24 @@ public class VehicleResponse {
         this.id = id;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
     public void setBrand(String brand) {
         this.brand = brand;
     }
 
+    public String getModel() {
+        return model;
+    }
+
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public Integer getYear() {
+        return year;
     }
 
     public void setYear(Integer year) {
@@ -38,6 +50,10 @@ public class VehicleResponse {
 
     public void setStatus(VehicleStatus status) {
         this.status = status;
+    }
+
+    public String getEngine() {
+        return engine;
     }
 
     public void setEngine(String engine) {

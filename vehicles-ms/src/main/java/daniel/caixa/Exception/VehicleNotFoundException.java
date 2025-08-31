@@ -1,4 +1,4 @@
-package daniel.caixa.Exception;
+package daniel.caixa.exception;
 
 public class VehicleNotFoundException extends RuntimeException{
     public VehicleNotFoundException(String message) {

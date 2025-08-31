@@ -1,6 +1,6 @@
-package daniel.caixa.DTO;
+package daniel.caixa.dto;
 
-import daniel.caixa.Entity.VehicleStatus;
+import daniel.caixa.entity.VehicleStatus;
 import jakarta.validation.constraints.NotNull;
 
 public class VehicleStatusUpdateRequest {

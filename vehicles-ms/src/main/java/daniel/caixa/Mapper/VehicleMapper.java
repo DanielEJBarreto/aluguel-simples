@@ -1,9 +1,9 @@
-package daniel.caixa.Mapper;
+package daniel.caixa.mapper;
 
-import daniel.caixa.DTO.VehicleRequest;
-import daniel.caixa.DTO.VehicleResponse;
-import daniel.caixa.Entity.Vehicle;
-import daniel.caixa.Entity.VehicleStatus;
+import daniel.caixa.dto.VehicleRequest;
+import daniel.caixa.dto.VehicleResponse;
+import daniel.caixa.entity.Vehicle;
+import daniel.caixa.entity.VehicleStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped

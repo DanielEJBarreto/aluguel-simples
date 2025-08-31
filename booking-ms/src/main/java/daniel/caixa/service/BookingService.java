@@ -15,7 +15,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -35,12 +34,6 @@ public class BookingService {
         return repository.listAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
-    }
-
-    public BookingResponse findById(Long id) {
-        return repository.findByIdOptional(id)
-                .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
     }
 
     @Transactional
@@ -80,10 +73,6 @@ public class BookingService {
             throw new InvalidReservationDateException("Já existe uma reserva para este veículo no período informado");
         }
 
-//        A alteração para RENTED não acontece mais no vehicle-ms
-//        //Alterando Status do Veiculo para RENTED
-//        vehicleAPIClient.updateStatus(dto.getVehicleId(), new VehicleAPIClient.Vehicle("RENTED"));
-
         // Mapeamento e persistência
         Booking entity = mapper.toEntity(dto, customerId);
         repository.persist(entity);
@@ -111,29 +100,8 @@ public class BookingService {
         booking.setStatus(newStatus);
     }
 
-    public BookingResponse getActiveBookingByVehicleId(Long vehicleId) {
-        Booking booking = repository.find("vehicleId = ?1 and status = ?2", vehicleId, BookingStatus.RENTED)
-                .firstResult();
-
-        if (booking == null) return null;
-
-        BookingResponse response = new BookingResponse();
-        response.setId(booking.getId());
-        response.setVehicleId(booking.getVehicleId());
-        response.setCustomerId(booking.getCustomerId());
-        response.setStartDate(booking.getStartDate());
-        response.setEndDate(booking.getEndDate());
-        response.setStatus(booking.getStatus());
-
-        return response;
-    }
-
     public List<Booking> listAllForCustomer(String customerId) {
         return repository.findByCustomerId(customerId);
-    }
-
-    public Optional<Booking> findByIdForCustomer(Long id, String customerId) {
-        return repository.findByIdAndCustomer(id, customerId);
     }
 
 }
