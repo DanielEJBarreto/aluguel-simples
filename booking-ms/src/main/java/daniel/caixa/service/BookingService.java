@@ -6,6 +6,7 @@ import daniel.caixa.dto.BookingResponse;
 import daniel.caixa.entity.Booking;
 import daniel.caixa.entity.BookingStatus;
 import daniel.caixa.exception.*;
+import daniel.caixa.kafka.BookingKafkaProducer;
 import daniel.caixa.mapper.BookingMapper;
 import daniel.caixa.repository.BookingRepository;
 import io.quarkus.cache.CacheInvalidateAll;
@@ -30,6 +31,9 @@ public class BookingService {
     @Inject
     @RestClient
     VehicleAPIClient vehicleAPIClient;
+
+    @Inject
+    BookingKafkaProducer bookingKafkaProducer;
 
     @CacheResult(cacheName = "vehicle-list-cache")
     public List<BookingResponse> listAll() {
@@ -102,6 +106,9 @@ public class BookingService {
         //Alterando Status do Booking para novo Status
         booking.setStatus(BookingStatus.CANCELED);
         booking.setCanceledAt(LocalDate.now());
+
+        //Mensagem para o KAFKA
+        bookingKafkaProducer.sendReservaCancelada(booking);
     }
 
     public List<Booking> listAllForCustomer(String customerId) {
@@ -131,6 +138,9 @@ public class BookingService {
         //Alterando status para ACTIVE
         booking.setStatus(BookingStatus.ACTIVE);
         booking.setActivatedAt(LocalDate.now());
+
+        //Mensagem para o KAFKA
+        bookingKafkaProducer.sendReservaAtiva(booking);
     }
 
     //Realiza o check-out
@@ -156,5 +166,8 @@ public class BookingService {
         //Alterando status para FINISHED
         booking.setStatus(BookingStatus.FINISHED);
         booking.setFinishedAt(LocalDate.now());
+
+        //Mensagem para o KAFKA
+        bookingKafkaProducer.sendReservaConcluida(booking);
     }
 }
