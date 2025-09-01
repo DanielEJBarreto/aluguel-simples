@@ -18,6 +18,34 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
+    private LocalDate activatedAt;
+    private LocalDate finishedAt;
+    private LocalDate canceledAt;
+
+    public LocalDate getCanceledAt() {
+        return canceledAt;
+    }
+
+    public void setCanceledAt(LocalDate canceledAt) {
+        this.canceledAt = canceledAt;
+    }
+
+    public LocalDate getFinishedAt() {
+        return finishedAt;
+    }
+
+    public void setFinishedAt(LocalDate finishedAt) {
+        this.finishedAt = finishedAt;
+    }
+
+    public LocalDate getActivatedAt() {
+        return activatedAt;
+    }
+
+    public void setActivatedAt(LocalDate activatedAt) {
+        this.activatedAt = activatedAt;
+    }
+
     public Long getId() {
         return id;
     }

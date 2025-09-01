@@ -1,6 +1,5 @@
 package daniel.caixa.resource;
 
-import daniel.caixa.dto.AlterBookingStatusRequest;
 import daniel.caixa.dto.BookingRequest;
 import daniel.caixa.dto.BookingResponse;
 import daniel.caixa.entity.Booking;
@@ -16,8 +15,6 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
-
-import static org.keycloak.util.JsonSerialization.mapper;
 
 @ApplicationScoped
 @Path("/bookings")
@@ -71,11 +68,31 @@ public class BookingResource {
 
     @PATCH
     @RolesAllowed({"admin", "user"})
-    @Path("/{id}/alter")
+    @Path("/{id}/cancelBooking")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response alter(@PathParam("id") Long id, AlterBookingStatusRequest dto) {
-        bookingService.alter(id, dto.getStatus());
-        return Response.ok().entity("Reserva alterada com sucesso!").build();
+    public Response alter(@PathParam("id") Long id) {
+        bookingService.cancelBooking(id);
+        return Response.ok().entity("Reserva cancelada com sucesso!").build();
+    }
+
+    @PATCH
+    @RolesAllowed({"admin", "user"})
+    @Path("/{id}/check-in")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response checkIn(@PathParam("id") Long id){
+        String customerId = jwt.getSubject();
+        bookingService.vehicleCheckIn(id, customerId);
+        return Response.ok().entity("Check-in iniciado com sucesso!").build();
+    }
+
+    @PATCH
+    @RolesAllowed({"admin", "user"})
+    @Path("/{id}/check-out")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response checkOut(@PathParam("id") Long id){
+        String customerId = jwt.getSubject();
+        bookingService.vehicleCheckOut(id, customerId);
+        return Response.ok().entity("Check-out realizado com sucesso!").build();
     }
 
 }

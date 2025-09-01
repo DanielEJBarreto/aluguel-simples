@@ -12,6 +12,7 @@ import io.quarkus.test.security.TestSecurity;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,6 +29,9 @@ public class BookingIntegrationTests {
 
     @InjectMock
     BookingRepository bookingRepository;
+
+    @InjectMock
+    JsonWebToken jwt;
 
     //Criar reserva com dados válidos
     @Test
@@ -105,14 +109,6 @@ public class BookingIntegrationTests {
         Mockito.when(bookingRepository.findByIdOptional(bookingId))
                 .thenReturn(Optional.of(mockBooking));
 
-        // Simula retorno do veículo
-        Mockito.when(vehicleAPIClient.findVehicleById(1L))
-                .thenReturn(new VehicleAPIClient.Vehicle("RENTED"));
-
-        // Simula atualização de status do veículo
-        Mockito.when(vehicleAPIClient.updateStatus(bookingId, new VehicleAPIClient.Vehicle("AVAILABLE")))
-                .thenReturn("OK");
-
         // Corpo da requisição PATCH
         AlterBookingStatusRequest alterRequest = new AlterBookingStatusRequest();
         alterRequest.setStatus(BookingStatus.CANCELED);
@@ -120,18 +116,18 @@ public class BookingIntegrationTests {
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .body(alterRequest)
-                .patch("/bookings/" + bookingId + "/alter")
+                .patch("/bookings/" + bookingId + "/cancelBooking")
                 .then()
                 .statusCode(200);
     }
 
-//Tentar cancelar reserva já cancelada
+    //Tentar cancelar reserva já cancelada
     @Test
     @TestSecurity(user = "myuser", roles = "user")
     void CancelBookingAlreadyCanceled() {
         Long bookingId = 42L;
 
-        // Simula reserva existente com status CREATED
+        // Simula reserva existente com status CANCELED
         Booking mockBooking = new Booking();
         mockBooking.setId(bookingId);
         mockBooking.setVehicleId(1L);
@@ -143,14 +139,6 @@ public class BookingIntegrationTests {
         Mockito.when(bookingRepository.findByIdOptional(bookingId))
                 .thenReturn(Optional.of(mockBooking));
 
-        // Simula retorno do veículo
-        Mockito.when(vehicleAPIClient.findVehicleById(1L))
-                .thenReturn(new VehicleAPIClient.Vehicle("RENTED"));
-
-        // Simula atualização de status do veículo
-        Mockito.when(vehicleAPIClient.updateStatus(bookingId, new VehicleAPIClient.Vehicle("AVAILABLE")))
-                .thenReturn("OK");
-
         // Corpo da requisição PATCH
         AlterBookingStatusRequest alterRequest = new AlterBookingStatusRequest();
         alterRequest.setStatus(BookingStatus.CANCELED);
@@ -158,12 +146,12 @@ public class BookingIntegrationTests {
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .body(alterRequest)
-                .patch("/bookings/" + bookingId + "/alter")
+                .patch("/bookings/" + bookingId + "/cancelBooking")
                 .then()
                 .statusCode(409);
     }
 
-//Tentar listar todos os bookings para admin
+    //Tentar listar todos os bookings para admin
     @Test
     @TestSecurity(user = "myuser", roles = "admin")
         void shouldListAllBookingsFromDatabaseForAdmin() {
@@ -193,4 +181,69 @@ public class BookingIntegrationTests {
                 .statusCode(200);
     }
 
+    //Tentar fazer check-in com sucesso
+    @Test
+    @TestSecurity(user = "myuser", roles = "user")
+    void shouldCheckIn() {
+        Long bookingId = 42L;
+
+        // Simula JWT com subject "myuser"
+        Mockito.when(jwt.getSubject()).thenReturn("myuser");
+
+        // Simula reserva existente com status CREATED
+        Booking mockBooking = new Booking();
+        mockBooking.setId(bookingId);
+        mockBooking.setVehicleId(1L);
+        mockBooking.setCustomerId("myuser");
+        mockBooking.setStartDate(LocalDate.now().plusDays(1));
+        mockBooking.setEndDate(LocalDate.now().plusDays(7));
+        mockBooking.setStatus(BookingStatus.CREATED);
+
+        Mockito.when(bookingRepository.findByIdOptional(bookingId))
+                .thenReturn(Optional.of(mockBooking));
+
+        // Corpo da requisição PATCH
+        AlterBookingStatusRequest alterRequest = new AlterBookingStatusRequest();
+        alterRequest.setStatus(BookingStatus.ACTIVE);
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(alterRequest)
+                .patch("/bookings/" + bookingId + "/check-in")
+                .then()
+                .statusCode(200);
+    }
+
+    //Tentar fazer check-out com sucesso
+    @Test
+    @TestSecurity(user = "myuser", roles = "user")
+    void shouldCheckOut() {
+        Long bookingId = 42L;
+
+        // Simula JWT com subject "myuser"
+        Mockito.when(jwt.getSubject()).thenReturn("myuser");
+
+        // Simula reserva existente com status CREATED
+        Booking mockBooking = new Booking();
+        mockBooking.setId(bookingId);
+        mockBooking.setVehicleId(1L);
+        mockBooking.setCustomerId("myuser");
+        mockBooking.setStartDate(LocalDate.now().plusDays(1));
+        mockBooking.setEndDate(LocalDate.now().plusDays(7));
+        mockBooking.setStatus(BookingStatus.ACTIVE);
+
+        Mockito.when(bookingRepository.findByIdOptional(bookingId))
+                .thenReturn(Optional.of(mockBooking));
+
+        // Corpo da requisição PATCH
+        AlterBookingStatusRequest alterRequest = new AlterBookingStatusRequest();
+        alterRequest.setStatus(BookingStatus.FINISHED);
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(alterRequest)
+                .patch("/bookings/" + bookingId + "/check-out")
+                .then()
+                .statusCode(200);
+    }
 }

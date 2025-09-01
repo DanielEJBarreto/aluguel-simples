@@ -41,6 +41,11 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(Response.Status.CONFLICT).entity(error).build();
         }
 
+        if (e instanceof InvalidCustomerException){
+            error = new ErrorResponse("INVALID CUSTOMER/BOOKING PAIR", e.getMessage());
+            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        }
+
         // fallback genérico
         error = new ErrorResponse(LocalDateTime.now(), "UNKNOWN ERROR", e.getMessage());
 
