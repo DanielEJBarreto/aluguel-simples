@@ -13,7 +13,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
 import java.util.List;
 
 @ApplicationScoped
@@ -21,13 +20,10 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class BookingResource {
 
+    @Inject
     BookingService bookingService;
 
     BookingResponse bookingResponse;
-
-    public BookingResource(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
 
     @Inject
     JsonWebToken jwt;

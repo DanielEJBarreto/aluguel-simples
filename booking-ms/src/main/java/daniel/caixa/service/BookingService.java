@@ -8,11 +8,12 @@ import daniel.caixa.entity.BookingStatus;
 import daniel.caixa.exception.*;
 import daniel.caixa.mapper.BookingMapper;
 import daniel.caixa.repository.BookingRepository;
+import io.quarkus.cache.CacheInvalidateAll;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,12 +31,15 @@ public class BookingService {
     @RestClient
     VehicleAPIClient vehicleAPIClient;
 
+    @CacheResult(cacheName = "vehicle-list-cache")
     public List<BookingResponse> listAll() {
+        System.out.println(">>>>>>>>>>>>>>Executando busca no banco<<<<<<<<<<<<<<");
         return repository.listAll().stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @CacheInvalidateAll(cacheName = "vehicle-list-cache")
     @Transactional
     public BookingResponse create(BookingRequest dto, String customerId) {
 
@@ -80,6 +84,7 @@ public class BookingService {
 
     }
 
+    @CacheInvalidateAll(cacheName = "vehicle-list-cache")
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = repository.findByIdOptional(bookingId)
@@ -104,6 +109,7 @@ public class BookingService {
     }
 
     //Realiza o check-in
+    @CacheInvalidateAll(cacheName = "vehicle-list-cache")
     @Transactional
     public void vehicleCheckIn(Long bookingId, String customerId) {
         Booking booking = repository.findByIdOptional(bookingId)
@@ -128,6 +134,7 @@ public class BookingService {
     }
 
     //Realiza o check-out
+    @CacheInvalidateAll(cacheName = "vehicle-list-cache")
     @Transactional
     public void vehicleCheckOut(Long bookingId, String customerId) {
         Booking booking = repository.findByIdOptional(bookingId)
